@@ -32,6 +32,7 @@ header > * {
 #game-over {
   align-self: center;
 
+  visibility: hidden;
   border: none;
   border-radius: 10px;
   padding: 0.5rem 2rem;
