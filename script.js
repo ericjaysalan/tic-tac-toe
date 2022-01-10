@@ -11,6 +11,9 @@ const gameBoard = (() => {
   const _checkBoardHorizontally = (marks, mark) => {
     for (let i = 0; i <= marks.length - 3; i += 3) {
       if (marks[i] === mark && marks[i + 1] === mark && marks[i + 2] === mark) {
+        cells[i].classList.add('match');
+        cells[i + 1].classList.add('match');
+        cells[i + 2].classList.add('match');
         return true;
       }
     }
@@ -21,6 +24,9 @@ const gameBoard = (() => {
   const _checkBoardVertically = (marks, mark) => {
     for (let i = 0; i < 3; i++) {
       if (marks[i] === mark && marks[i + 3] === mark && marks[i + 6] === mark) {
+        cells[i].classList.add('match');
+        cells[i + 3].classList.add('match');
+        cells[i + 6].classList.add('match');
         return true;
       }
     }
@@ -29,10 +35,15 @@ const gameBoard = (() => {
   };
 
   const _checkBoardDiagonally = (marks, mark) => {
-    if (
-      (marks[0] === mark && marks[4] === mark && marks[8] === mark) ||
-      (marks[2] === mark && marks[4] === mark && marks[6] === mark)
-    ) {
+    if (marks[0] === mark && marks[4] === mark && marks[8] === mark) {
+      cells[4].classList.add('match');
+      cells[8].classList.add('match');
+      cells[0].classList.add('match');
+      return true;
+    } else if (marks[2] === mark && marks[4] === mark && marks[6] === mark) {
+      cells[2].classList.add('match');
+      cells[4].classList.add('match');
+      cells[6].classList.add('match');
       return true;
     }
 
@@ -63,6 +74,7 @@ const gameBoard = (() => {
     const cell = e.target;
 
     if (_cellHasNoMarker(cell) && !game.isOver()) {
+      const previousPlayer = game.getCurrentPlayer();
       _setMarker(cell);
 
       if (_checkWinner()) {
@@ -75,6 +87,9 @@ const gameBoard = (() => {
       } else {
         game.nextPlayer();
       }
+
+      game.toggleHighlight(game.getCurrentPlayer());
+      game.toggleHighlight(previousPlayer);
     }
   };
 
@@ -82,6 +97,7 @@ const gameBoard = (() => {
     cells.forEach(cell => {
       cell.innerText = '';
       cell.classList.remove('active');
+      cell.classList.remove('match');
     });
   };
 
@@ -99,9 +115,14 @@ const gameBoard = (() => {
 
 const game = (() => {
   const gameOverButton = document.getElementById('game-over');
-  let gameOver = false;
   const players = [];
   let currentPlayer;
+  let gameOver = false;
+
+  const toggleHighlight = player => {
+    const card = player.getCard();
+    card.classList.toggle('active');
+  };
 
   const setPlayers = playersParam => {
     playersParam.forEach(player => players.push(player));
@@ -110,6 +131,8 @@ const game = (() => {
     players.forEach(player => {
       player.setCard();
     });
+
+    toggleHighlight(currentPlayer);
   };
 
   const getPlayers = () => players;
@@ -124,8 +147,6 @@ const game = (() => {
   const getCurrentPlayer = () => currentPlayer;
 
   const setGame = () => {
-    gameBoard.setClickListenerToCells();
-
     const player1 = Player();
     player1.setPlayerNumber(1);
     player1.setName('Ej');
@@ -136,9 +157,11 @@ const game = (() => {
     player2.setMarker('O');
 
     setPlayers([player1, player2]);
+
+    gameBoard.setClickListenerToCells();
   };
 
-  const isGameOver = () => gameOver;
+  const isOver = () => gameOver;
 
   const _setGameOver = bool => (gameOver = bool);
 
@@ -154,11 +177,12 @@ const game = (() => {
   });
 
   return {
-    isOver: isGameOver,
+    isOver,
     setPlayers,
     getPlayers,
     nextPlayer,
     getCurrentPlayer,
+    toggleHighlight,
     setGame,
     end,
   };
@@ -204,8 +228,11 @@ const Player = () => {
     }
   };
 
+  const getCard = () => card;
+
   return {
     setCard,
+    getCard,
     addPoints,
     setPlayerNumber,
     getPlayerNumber,

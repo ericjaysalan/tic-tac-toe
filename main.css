@@ -30,6 +30,13 @@ header > * {
   text-align: center;
 }
 
+.players.active {
+  background-color: rgb(131, 54, 30);
+  color: #fff;
+  padding: 1rem 12rem;
+  margin: 1rem 0;
+}
+
 #game-over {
   align-self: center;
 
@@ -80,4 +87,9 @@ header > * {
 
 .cell.active {
   cursor: default;
+}
+
+.match {
+  background-color: #fff;
+  color: rgb(58, 253, 9);
 }
