@@ -1,6 +1,3 @@
-/**
- * @typedef {IIFE} gameBoard - handles all things related to the gameboard
- */
 const gameBoard = (() => {
   const board = document.getElementById('game-board');
   const cells = Array.from(board.children);
@@ -34,12 +31,16 @@ const gameBoard = (() => {
   const _checkBoardDiagonally = (marks, mark) => {
     if (
       (marks[0] === mark && marks[4] === mark && marks[8] === mark) ||
-      (marks[2] === mark && marks[4] && marks[6] == mark)
+      (marks[2] === mark && marks[4] === mark && marks[6] === mark)
     ) {
       return true;
     }
 
     return false;
+  };
+
+  const _noWinner = () => {
+    return cells.every(cell => cell.innerText !== '');
   };
 
   const _checkWinner = () => {
@@ -53,6 +54,7 @@ const gameBoard = (() => {
       _checkBoardDiagonally(marks, mark)
     )
       return true;
+    else return false;
   };
 
   const _cellHasNoMarker = cell => cell.innerText === '';
@@ -60,12 +62,19 @@ const gameBoard = (() => {
   const _checkCell = e => {
     const cell = e.target;
 
-    if (_cellHasNoMarker(cell) && !game.isGameOver()) {
+    if (_cellHasNoMarker(cell) && !game.isOver()) {
       _setMarker(cell);
 
       if (_checkWinner()) {
+        const winner = game.getCurrentPlayer();
+        winner.addPoints();
+        game.nextPlayer(); // Whoever loses gets to go first.
         game.end();
-      } else game.nextPlayer();
+      } else if (_noWinner()) {
+        game.end();
+      } else {
+        game.nextPlayer();
+      }
     }
   };
 
@@ -89,6 +98,7 @@ const gameBoard = (() => {
 })();
 
 const game = (() => {
+  const gameOverButton = document.getElementById('game-over');
   let gameOver = false;
   const players = [];
   let currentPlayer;
@@ -130,27 +140,21 @@ const game = (() => {
 
   const isGameOver = () => gameOver;
 
-  const _setGameOver = bool => {
-    gameOver = bool;
-  };
+  const _setGameOver = bool => (gameOver = bool);
 
   const end = () => {
-    const gameOverButton = document.getElementById('game-over');
-    const winner = currentPlayer;
     _setGameOver(true);
-
     gameOverButton.classList.add('active');
-    gameOverButton.addEventListener('click', () => {
-      gameOverButton.classList.remove('active');
-      _setGameOver(false);
-      gameBoard.resetBoard();
-    });
-
-    winner.addPoints();
   };
 
+  gameOverButton.addEventListener('click', () => {
+    gameOverButton.classList.remove('active');
+    _setGameOver(false);
+    gameBoard.resetBoard();
+  });
+
   return {
-    isGameOver,
+    isOver: isGameOver,
     setPlayers,
     getPlayers,
     nextPlayer,
