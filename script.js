@@ -1,3 +1,6 @@
+/**
+ * @typedef {IIFE} gameBoard - handles all things related to the gameboard
+ */
 const gameBoard = (() => {
   const board = document.getElementById('game-board');
   const cells = Array.from(board.children);
@@ -10,7 +13,9 @@ const gameBoard = (() => {
 
   const _checkBoardHorizontally = (marks, mark) => {
     for (let i = 0; i <= marks.length - 3; i += 3) {
-      if (marks[i] === mark && marks[i + 1] === mark && marks[i + 2] === mark) return true;
+      if (marks[i] === mark && marks[i + 1] === mark && marks[i + 2] === mark) {
+        return true;
+      }
     }
 
     return false;
@@ -18,7 +23,9 @@ const gameBoard = (() => {
 
   const _checkBoardVertically = (marks, mark) => {
     for (let i = 0; i < 3; i++) {
-      if (marks[i] === mark && marks[i + 3] === mark && marks[i + 6] === mark) return true;
+      if (marks[i] === mark && marks[i + 3] === mark && marks[i + 6] === mark) {
+        return true;
+      }
     }
 
     return false;
@@ -27,10 +34,12 @@ const gameBoard = (() => {
   const _checkBoardDiagonally = (marks, mark) => {
     if (
       (marks[0] === mark && marks[4] === mark && marks[8] === mark) ||
-      (marks[2] === mark && marks[4] && marks[6])
-    )
+      (marks[2] === mark && marks[4] && marks[6] == mark)
+    ) {
       return true;
-    else return false;
+    }
+
+    return false;
   };
 
   const _checkWinner = () => {
@@ -51,12 +60,20 @@ const gameBoard = (() => {
   const _checkCell = e => {
     const cell = e.target;
 
-    if (_cellHasNoMarker(cell)) {
+    if (_cellHasNoMarker(cell) && !game.isGameOver()) {
       _setMarker(cell);
 
-      if (_checkWinner()) game.end();
-      else game.nextPlayer();
+      if (_checkWinner()) {
+        game.end();
+      } else game.nextPlayer();
     }
+  };
+
+  const resetBoard = () => {
+    cells.forEach(cell => {
+      cell.innerText = '';
+      cell.classList.remove('active');
+    });
   };
 
   const setClickListenerToCells = () => {
@@ -67,16 +84,22 @@ const gameBoard = (() => {
 
   return {
     setClickListenerToCells,
+    resetBoard,
   };
 })();
 
 const game = (() => {
+  let gameOver = false;
   const players = [];
   let currentPlayer;
 
   const setPlayers = playersParam => {
     playersParam.forEach(player => players.push(player));
     currentPlayer = players[0];
+
+    players.forEach(player => {
+      player.setCard();
+    });
   };
 
   const getPlayers = () => players;
@@ -92,13 +115,42 @@ const game = (() => {
 
   const setGame = () => {
     gameBoard.setClickListenerToCells();
-    console.log('game set');
+
+    const player1 = Player();
+    player1.setPlayerNumber(1);
+    player1.setName('Ej');
+    player1.setMarker('X');
+    const player2 = Player();
+    player2.setPlayerNumber(2);
+    player2.setName('Eric Jay');
+    player2.setMarker('O');
+
+    setPlayers([player1, player2]);
+  };
+
+  const isGameOver = () => gameOver;
+
+  const _setGameOver = bool => {
+    gameOver = bool;
   };
 
   const end = () => {
-    console.log(currentPlayer.getName());
+    const gameOverButton = document.getElementById('game-over');
+    const winner = currentPlayer;
+    _setGameOver(true);
+
+    gameOverButton.classList.add('active');
+    gameOverButton.addEventListener('click', () => {
+      gameOverButton.classList.remove('active');
+      _setGameOver(false);
+      gameBoard.resetBoard();
+    });
+
+    winner.addPoints();
   };
+
   return {
+    isGameOver,
     setPlayers,
     getPlayers,
     nextPlayer,
@@ -108,13 +160,51 @@ const game = (() => {
   };
 })();
 
-const Player = (name, marker) => {
-  const setName = param => (name = param);
+const Player = () => {
+  let playerNumber;
+  let name;
+  let marker;
+  let points = 0;
+  let card;
+
+  const setPlayerNumber = param => {
+    playerNumber = param;
+  };
+
+  const getPlayerNumber = () => playerNumber;
+
+  const setName = param => {
+    name = param;
+  };
+
+  const setMarker = param => {
+    marker = param;
+  };
+
   const getName = () => name;
-  const setMarker = param => (marker = param);
   const getMarker = () => marker;
+  const addPoints = () => {
+    points++;
+    card.lastElementChild.innerText = `Wins: ${points}`;
+  };
+
+  const setCard = () => {
+    if (playerNumber === 1) {
+      card = document.getElementById('player1');
+      card.firstElementChild.innerText = name;
+      card.querySelector(':nth-child(2)').innerText = `[${marker}]`;
+    } else {
+      card = document.getElementById('player2');
+      card.firstElementChild.innerText = name;
+      card.querySelector(':nth-child(2)').innerText = `[${marker}]`;
+    }
+  };
 
   return {
+    setCard,
+    addPoints,
+    setPlayerNumber,
+    getPlayerNumber,
     setName,
     getName,
     setMarker,
@@ -122,7 +212,4 @@ const Player = (name, marker) => {
   };
 };
 
-const player1 = Player('Player 1', 'X');
-const player2 = Player('Player 2', 'O');
-game.setPlayers([player1, player2]);
 game.setGame();
