@@ -119,6 +119,16 @@ const game = (() => {
   let currentPlayer;
   let gameOver = false;
 
+  const _getUserInfo = () => {
+    let userInfo = [{}, {}];
+    for (let i = 0; i < 2; i++) {
+      userInfo[i].name = prompt(`Player ${i + 1} name: `);
+      userInfo[i].marker = prompt(`Player ${i + 1} marker: `);
+    }
+
+    return userInfo;
+  };
+
   const _setGameOver = bool => (gameOver = bool);
 
   const toggleHighlight = player => {
@@ -138,14 +148,17 @@ const game = (() => {
   };
 
   const setGame = () => {
+    const input = _getUserInfo();
+
     const player1 = Player();
     player1.setPlayerNumber(1);
-    player1.setName('Ej');
-    player1.setMarker('X');
+    player1.setName(input[0].name || 'Player 1');
+    player1.setMarker(input[0].marker || 'X');
+
     const player2 = Player();
     player2.setPlayerNumber(2);
-    player2.setName('Eric Jay');
-    player2.setMarker('O');
+    player2.setName(input[1].name || 'Player 2');
+    player2.setMarker(input[1].marker || 'O');
 
     setPlayers([player1, player2]);
 
