@@ -75,14 +75,18 @@ const gameBoard = (() => {
 
     if (_cellHasNoMarker(cell) && !game.isOver()) {
       const previousPlayer = game.getCurrentPlayer();
+      const gameOverButton = document.getElementById('game-over');
+      const buttonText = `Game Over!\n`;
       _setMarker(cell);
 
       if (_checkWinner()) {
         const winner = game.getCurrentPlayer();
         winner.addPoints();
+        gameOverButton.innerText = `${buttonText}${winner.getName()} wins!`;
         game.nextPlayer(); // Whoever loses gets to go first.
         game.end();
       } else if (_noWinner()) {
+        gameOverButton.innerText = `${buttonText}No Winner!`;
         game.end();
       } else {
         game.nextPlayer();
@@ -185,6 +189,7 @@ const game = (() => {
 
   gameOverButton.addEventListener('click', () => {
     gameOverButton.classList.remove('active');
+    gameOverButton.innerText = 'Game Over!';
     _setGameOver(false);
     gameBoard.resetBoard();
   });
