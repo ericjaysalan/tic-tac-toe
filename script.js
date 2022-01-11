@@ -119,6 +119,8 @@ const game = (() => {
   let currentPlayer;
   let gameOver = false;
 
+  const _setGameOver = bool => (gameOver = bool);
+
   const toggleHighlight = player => {
     const card = player.getCard();
     card.classList.toggle('active');
@@ -135,17 +137,6 @@ const game = (() => {
     toggleHighlight(currentPlayer);
   };
 
-  const getPlayers = () => players;
-
-  const nextPlayer = () => {
-    const currentPlayerIndex = players.findIndex(player => player === currentPlayer);
-    // Assuming there are 2 players in a game
-    if (currentPlayerIndex === 0) currentPlayer = players[1];
-    else currentPlayer = players[0];
-  };
-
-  const getCurrentPlayer = () => currentPlayer;
-
   const setGame = () => {
     const player1 = Player();
     player1.setPlayerNumber(1);
@@ -161,9 +152,18 @@ const game = (() => {
     gameBoard.setClickListenerToCells();
   };
 
-  const isOver = () => gameOver;
+  const nextPlayer = () => {
+    const currentPlayerIndex = players.findIndex(player => player === currentPlayer);
+    // Assuming there are 2 players in a game
+    if (currentPlayerIndex === 0) currentPlayer = players[1];
+    else currentPlayer = players[0];
+  };
 
-  const _setGameOver = bool => (gameOver = bool);
+  const getPlayers = () => players;
+
+  const getCurrentPlayer = () => currentPlayer;
+
+  const isOver = () => gameOver;
 
   const end = () => {
     _setGameOver(true);
@@ -195,25 +195,12 @@ const Player = () => {
   let points = 0;
   let card;
 
-  const setPlayerNumber = param => {
-    playerNumber = param;
-  };
-
-  const getPlayerNumber = () => playerNumber;
-
   const setName = param => {
     name = param;
   };
 
   const setMarker = param => {
     marker = param;
-  };
-
-  const getName = () => name;
-  const getMarker = () => marker;
-  const addPoints = () => {
-    points++;
-    card.lastElementChild.innerText = `Wins: ${points}`;
   };
 
   const setCard = () => {
@@ -228,18 +215,33 @@ const Player = () => {
     }
   };
 
+  const addPoints = () => {
+    points++;
+    card.lastElementChild.innerText = `Wins: ${points}`;
+  };
+
+  const setPlayerNumber = param => {
+    playerNumber = param;
+  };
+
+  const getPlayerNumber = () => playerNumber;
+
+  const getName = () => name;
+
+  const getMarker = () => marker;
+
   const getCard = () => card;
 
   return {
-    setCard,
-    getCard,
-    addPoints,
     setPlayerNumber,
-    getPlayerNumber,
     setName,
-    getName,
     setMarker,
+    setCard,
+    addPoints,
+    getPlayerNumber,
+    getName,
     getMarker,
+    getCard,
   };
 };
 
